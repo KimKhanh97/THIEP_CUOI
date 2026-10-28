@@ -32,7 +32,7 @@ window.WEDDING = {
 
   // ✏️ THAY ĐỔI: Các cột mốc (3–4 mục là đẹp nhất)
   timeline: [
-    { date: "Tháng 04 · 2023", title: "Ngày đầu gặp gỡ", text: "Một buổi tối tại một thành phố tấp nập nhộn nhịp, một lời hứa gặp gỡ, một lời chào còn chút ngại ngùng, những câu chuyện phím, rồi đến cả những lúc cùng nhau nói xấu thiên hạ,....Mọi thứ bất đầu từ đó." },
+    { date: "Tháng 04 · 2023", title: "Ngày đầu gặp gỡ", text: "Một buổi tối tại một thành phố tấp nập nhộn nhịp, một lời hứa gặp gỡ, một lời chào còn chút ngại ngùng, những câu chuyện phím, rồi đến cả những lúc cùng nhau nói xấu thiên hạ,....Mọi thứ bắt đầu từ đó." },
     { date: "Tháng 12 · 2025", title: "Lời cầu hôn", text: "Anh chọn cầu hôn vào ngày sinh nhật của anh vì anh nói em là món quà lớn và đặc biệt nhất của đời anh. Em đã nói: Em đồng ý. " },
     { date: "Tháng 11 · 2026", title: "Ngày chung đôi", text: "Chúng mình về chung một nhà — và mong được chia sẻ niềm vui ấy cùng tất cả mọi người." },
   ],
