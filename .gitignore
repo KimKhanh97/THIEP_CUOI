@@ -1,0 +1,5 @@
+# Ảnh gốc dung lượng lớn — trang chỉ dùng bản đã nén trong images/
+/*.JPG
+# Bản nhạc có hình (dự phòng) — trang dùng music/vay-cuoi.mp4
+music/vay-cuoi-video.mp4
+.DS_Store
