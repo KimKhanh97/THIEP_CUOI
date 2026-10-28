@@ -292,7 +292,83 @@
       document.body.classList.remove("gate-locked");
       gate.classList.add("opened");
       setTimeout(() => gate.remove(), reduceMotion ? 0 : 900);
+      sparkleRain();
     });
+  }
+
+  /* ---------- Hiệu ứng lấp lánh rơi khi mở thiệp ----------
+     Vẽ trên một canvas phủ toàn màn hình (không chặn bấm), rơi liên tục
+     cho tới khi khách đóng trang. */
+  function sparkleRain() {
+    if (reduceMotion) return;
+    const COLORS = ["#E8C77B", "#F3DFA8", "#D4AF6A", "#FFF6DC", "#EADBC8"];
+
+    const canvas = document.createElement("canvas");
+    canvas.className = "sparkles";
+    canvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    let w, h;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const resize = () => {
+      w = innerWidth; h = innerHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    addEventListener("resize", resize);
+
+    const rand = (a, b) => a + Math.random() * (b - a);
+    const spawn = (y = rand(-h * 0.2, -10)) => ({
+      x: rand(0, w), y,
+      r: rand(2, 6),
+      vy: rand(0.6, 1.8),
+      sway: rand(0.4, 1.4), phase: rand(0, Math.PI * 2),
+      rot: rand(0, Math.PI), vr: rand(-0.03, 0.03),
+      tw: rand(0.04, 0.1),
+      star: Math.random() < 0.6,
+      color: COLORS[(Math.random() * COLORS.length) | 0],
+    });
+
+    // Ngôi sao 4 cánh kiểu "bling"
+    const drawStar = (r) => {
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const a = (i * Math.PI) / 4;
+        const len = i % 2 ? r * 0.28 : r;
+        ctx.lineTo(Math.cos(a) * len, Math.sin(a) * len);
+      }
+      ctx.closePath();
+      ctx.fill();
+    };
+
+    const count = Math.round(Math.min(140, (w * h) / 9000));
+    const parts = Array.from({ length: count }, () => spawn(rand(-h, 0)));
+
+    const frame = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of parts) {
+        p.phase += 0.02;
+        p.y += p.vy;
+        p.x += Math.sin(p.phase) * p.sway * 0.5;
+        p.rot += p.vr;
+        if (p.y > h + 10) Object.assign(p, spawn()); // rơi hết thì quay lại từ trên
+        const alpha = 0.55 + 0.45 * Math.sin(p.phase * p.tw * 40);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0.15, alpha);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = p.r * 2;
+        if (p.star) drawStar(p.r * 1.6);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.r * 0.45, 0, Math.PI * 2); ctx.fill(); }
+        ctx.restore();
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
   }
 
   /* ---------- Guestbook ----------
