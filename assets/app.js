@@ -372,8 +372,9 @@
   }
 
   /* ---------- Guestbook ----------
-     Lời chúc được lưu trong trình duyệt của khách (localStorage).
-     Muốn mọi người cùng thấy lời chúc của nhau → nối form với Google Sheets / Firebase. */
+     Lời chúc được gửi lên Google Sheet qua Apps Script (W.wishesApi) để mọi người
+     cùng thấy. Bản sao trong localStorage giúp khách vẫn thấy lời chúc của mình
+     khi mạng lỗi hoặc chưa cấu hình wishesApi. */
   const STORE = "wedding-wishes-v2";
   const loadWishes = () => {
     try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch { return []; }
@@ -406,16 +407,39 @@
     return el;
   }
 
-  function renderWishes() {
+  // Gộp lời chúc từ Sheet với bản lưu cục bộ, bỏ trùng (cùng tên + nội dung)
+  function renderWishes(remote = []) {
     const list = $("#wishList");
     list.innerHTML = "";
-    [...loadWishes(), ...window.SEED_WISHES]
+    const seen = new Set();
+    [...remote, ...loadWishes(), ...window.SEED_WISHES]
+      .filter((w) => {
+        const key = `${w.name}\n${w.message}`;
+        return !seen.has(key) && seen.add(key);
+      })
       .sort((a, b) => b.ts - a.ts)
       .forEach((w) => list.appendChild(wishCard(w)));
     icons();
   }
 
-  $("#wishForm").addEventListener("submit", (e) => {
+  async function fetchWishes() {
+    if (!W.wishesApi) return;
+    try {
+      const res = await fetch(W.wishesApi);
+      const data = await res.json();
+      if (data.ok) renderWishes(data.wishes);
+    } catch (err) {
+      console.error("Không tải được lời chúc", err);
+    }
+  }
+
+  // text/plain để tránh preflight CORS mà Apps Script không hỗ trợ
+  const postWish = (wish) =>
+    fetch(W.wishesApi, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(wish) })
+      .then((res) => res.json())
+      .then((data) => { if (!data.ok) throw new Error(data.error); });
+
+  $("#wishForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = e.target;
     const name = f.name.value.trim();
@@ -424,14 +448,29 @@
     f.message.classList.toggle("invalid", !message);
     if (!name || !message) return;
 
+    const btn = $("button", f);
+    const msg = $("#formMsg");
     const wish = { name, message, ts: Date.now() };
+    btn.disabled = true;
+    let sent = true;
+    if (W.wishesApi) {
+      try {
+        await postWish(wish);
+      } catch (err) {
+        console.error("Gửi lời chúc lỗi", err);
+        sent = false;
+      }
+    }
+    btn.disabled = false;
+
     saveWishes([wish, ...loadWishes()]);
     $("#wishList").prepend(wishCard(wish, true));
     icons();
     f.reset();
 
-    const msg = $("#formMsg");
-    msg.textContent = `Cảm ơn ${name}! Lời chúc của bạn đã được gửi ♡`;
+    msg.textContent = sent
+      ? `Cảm ơn ${name}! Lời chúc của bạn đã được gửi ♡`
+      : "Mạng đang chập chờn — lời chúc tạm lưu trên máy, bạn thử gửi lại sau nhé.";
     msg.style.opacity = 1;
     setTimeout(() => (msg.style.opacity = 0), 3500);
   });
@@ -458,6 +497,7 @@
   renderTimeline();
   renderGrid();
   renderWishes();
+  fetchWishes();
   setupEvents();
   setupMusic();
   setupGate();

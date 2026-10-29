@@ -26,6 +26,11 @@ window.WEDDING = {
   // Phát khi khách bấm "Mở thiệp". Để "" nếu không muốn có nhạc.
   music: "music/vay-cuoi.mp4",
 
+  // ✏️ THAY ĐỔI: Link Web App Google Apps Script để lưu lời chúc vào Google Sheet
+  //   (dạng https://script.google.com/macros/s/.../exec — xem README.md).
+  //   Để "" thì lời chúc chỉ lưu trong trình duyệt của khách.
+  wishesApi: "https://script.google.com/macros/s/AKfycbwx1BDwaYM5Zw2mNtQthNBPURYQ1Gf_5sdVEerUBwPUjnOVBcRViEQ-XtieeZbtLeUQ/exec",
+
   // ✏️ THAY ĐỔI: Đoạn giới thiệu "Chuyện chúng mình"
   storyIntro:
     "Có những người bước vào đời ta thật khẽ, như một buổi chiều nắng nhạt — rồi ở lại mãi. Chúng mình đã đi qua những mùa mưa, những chuyến đi xa và cả những ngày bình thường nhất, để nhận ra rằng nhà là nơi có nhau.",
