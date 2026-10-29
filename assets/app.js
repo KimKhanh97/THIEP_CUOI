@@ -298,9 +298,8 @@
 
   /* ---------- Hiệu ứng lấp lánh rơi khi mở thiệp ----------
      Vẽ trên một canvas phủ toàn màn hình (không chặn bấm), rơi liên tục
-     cho tới khi khách đóng trang. */
+     cho tới khi khách đóng trang. Luôn chạy, kể cả khi máy khách bật "giảm chuyển động". */
   function sparkleRain() {
-    if (reduceMotion) return;
     const COLORS = ["#E8C77B", "#F3DFA8", "#D4AF6A", "#FFF6DC", "#EADBC8"];
 
     const canvas = document.createElement("canvas");
